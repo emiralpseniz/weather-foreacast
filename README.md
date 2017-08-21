@@ -38,3 +38,18 @@ The application will have the capability to get location of the user automatical
 Currently the api is still implemented. Google's Maps API will be used to guess user's city.
 
 Users can access this page from `localhost:8080`.
+
+### Further Improvements
+The application can be easily containerized (Dockerized). This way the application
+can be run as many instances together. A further improvement on this can be to
+centralize configuration management (via Spring's config-server, HashiCorp's consul, etc.)
+
+Application does not have caching capability, using simple cache's can improve the response times.
+
+OpenWeatherMap API supports geolocation requests. In order to simplify getting user's city
+automatically, the logic can be changed to getting geolocation and passing it to the
+external API to get the forecasts.
+
+### Missing Parts
+Google SSO (honestly I didn't had time for this and didn't understand how to use it in the app)
+Backend app has tests included but there is no frontend testing and automated testing.
