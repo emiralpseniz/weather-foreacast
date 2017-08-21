@@ -1,0 +1,192 @@
+<!doctype html>
+<html ng-app="forecast">
+<head>
+    <title>City Forecast</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBjwkUCSG7VE3HYPBcCUGK7QFYoXT18U0E"></script>
+    <style type="text/css">
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body ng-controller="forecastController" ng-cloak class="ng-cloak" onload="getCity()">
+<div class="container">
+
+    <br/>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="jumbotron">
+                <h3>Forecast for cities</h3>
+                <p>Search for five day forecasts for cities</p>
+                <div class="form-group">
+                    <form name="forecastForm" ng-submit="getForecast()">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="text" id="searchCity" class="form-control" placeholder="city" ng-model="searchCity">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label><input type="radio" ng-model="searchUnit" value="metric" /> Celsius</label><br/>
+                            <label><input type="radio" ng-model="searchUnit" value="imperial" /> Fahrenheit</label><br/>
+                            <label><input type="radio" ng-model="searchUnit" value="" /> Kelvin</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-default" ng-click="getForecast()">Get Forecast</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="showForecast">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="page-header">
+                    <h3>{{city}}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h4>Highlights</h4>
+                        </div>
+                    </div>
+
+                    <br/>
+
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Lowest</h3>
+                            </div>
+                            <div class="panel-body" >
+                                <div ng-repeat="low in lowestTemperatures">
+                                    <span>{{low}} {{unit}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Highest</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div ng-repeat="high in highestTemperatures">
+                                    <span>{{high}} {{unit}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h4>Forecast</h4>
+                    </div>
+                </div>
+
+                <br/>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+
+                                <table class="table table-condensed">
+                                    <caption>5 day forecast with lowest and highest temperatures</caption>
+                                    <thead>
+                                    <th>Date</th>
+                                    <th>Lowest</th>
+                                    <th>Highest</th>
+                                    </thead>
+                                    <tbody ng-repeat="forecast in forecasts">
+                                    <tr>
+                                        <td>{{forecast.date}}</td>
+                                        <td>{{forecast.lowest}} {{unit}}</td>
+                                        <td>{{forecast.highest}} {{unit}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    var geocoder;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
+    }
+    //Get the latitude and the longitude;
+    function successFunction(position) {
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
+        codeLatLng(lat, lng)
+    }
+
+    function errorFunction(){
+        alert("Geocoder failed");
+    }
+
+    function getCity() {
+        geocoder = new google.maps.Geocoder();
+    }
+
+    function codeLatLng(lat, lng) {
+
+        var cityField = document.getElementById('searchCity');
+
+        var latlng = new google.maps.LatLng(lat, lng);
+        geocoder.geocode({'latLng': latlng}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                if (results[1]) {
+                    for (var i=0; i<results[0].address_components.length; i++) {
+                        for (var b=0;b<results[0].address_components[i].types.length;b++) {
+
+                            if (results[0].address_components[i].types[b] == "locality") {
+                                //this is the object you are looking for
+                                alert(results[0].address_components[i].short_name);
+                                cityField.textContent = results[0].address_components[i].short_name;
+                                cityField.innerHTML = results[0].address_components[i].short_name;
+                                break;
+                            }
+                        }
+                    }
+
+                } else {
+                    alert("No results found");
+                }
+            } else {
+                alert("Geocoder failed due to: " + status);
+            }
+        });
+    }
+</script>
+
+<script src="/webjars/angularjs/1.4.9/angular.js"></script>
+<script src="/webjars/angularjs/1.4.9/angular-resource.js"></script>
+<script src="js/hello.js"></script>
+</body>
+</html>

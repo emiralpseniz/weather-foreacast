@@ -34,6 +34,7 @@ Frontend application is a SPA that provides graphical interface to the users.
 In it's only page it has just one field that user can manipulate to get
 the forecasts for.
 
-The application has the capability to get location of the user automatically if it is allowed.
+The application will have the capability to get location of the user automatically if it is allowed.
+Currently the api is still implemented. Google's Maps API will be used to guess user's city.
 
-The forecast is printed in a human readable way.
+Users can access this page from `localhost:8080`.
